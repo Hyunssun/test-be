@@ -41,28 +41,6 @@ const userFind = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// 유저 생성하는 API
-const userCreate = async (req: Request, res: Response): Promise<void> => {
-  const { userid, password, name, age, tf } = req.body;
-
-  try {
-    const connection = await mysql.createConnection(connectionConfig);
-    const [result] = await connection.execute<OkPacket>(
-      'INSERT INTO user (userid, password, name, age, tf) VALUES (?,?,?,?,?)',
-      [userid, password, name, age, tf]
-    );
-    connection.end();
-
-    if (result.affectedRows >= 1) {
-      res.status(201).send({ message: '정상적으로 추가되었습니다.' });
-    } else {
-      res.status(201).send({ message: '실패하였습니다.' });
-    }
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
 // 유저 삭제하는 API
 const userDelete = async (req: Request, res: Response): Promise<void> => {
   const { userid } = req.query;
@@ -74,7 +52,7 @@ const userDelete = async (req: Request, res: Response): Promise<void> => {
     connection.end();
 
     if (result.affectedRows >= 1) {
-      res.status(201).send({ message: '정상적으로 삭제되었습니다.' });
+      res.status(201).send({ message: 'success' });
     } else {
       res.status(201).send({ message: '실패하였습니다.' });
     }
@@ -86,7 +64,7 @@ const userDelete = async (req: Request, res: Response): Promise<void> => {
 // 유저 수정하는 API
 const userModify = async (req: Request, res: Response): Promise<void> => {
   const { userid } = req.query;
-  let { password, name, age, tf } = req.body;
+  let { password, name, number } = req.body;
 
   try {
     const connection = await mysql.createConnection(connectionConfig);
@@ -103,23 +81,20 @@ const userModify = async (req: Request, res: Response): Promise<void> => {
       if (!name) {
         name = find[0].name;
       }
-      if (!age) {
-        age = find[0].age;
-      }
-      if (!tf) {
-        tf = find[0].tf;
+      if (!number) {
+        number = find[0].number;
       }
     }
 
     // 업데이트 쿼리 진행
     const [result] = await connection.execute<OkPacket>(
-      'UPDATE user SET password = ?, name = ?, age = ?, tf =?, mod_date = ? WHERE userid = ?',
-      [password, name, age, tf, new Date(), userid]
+      'UPDATE user SET password = ?, name = ?, number = ?, mod_date = ? WHERE userid = ?',
+      [password, name, number, new Date(), userid]
     );
     connection.end();
 
     if (result.affectedRows >= 1) {
-      res.status(201).send({ message: '정상적으로 수정되었습니다.' });
+      res.status(201).send({ message: 'success' });
     } else {
       res.status(201).send({ message: '실패하였습니다.' });
     }
@@ -145,6 +120,29 @@ const userLogin = async (req: Request, res: Response): Promise<void> => {
       res.status(201).send({ message: 'success' });
     } else {
       res.status(201).send({ message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+// 회원가입 API
+const userCreate = async (req: Request, res: Response): Promise<void> => {
+  const { userid, password, name, number } = req.body;
+  console.log(userid, password, name, number);
+  try {
+    const connection = await mysql.createConnection(connectionConfig);
+    const [result] = await connection.execute<OkPacket>(
+      'INSERT INTO user (userid, password, name, number) VALUES (?,?,?,?)',
+      [userid, password, name, number]
+    );
+    console.log(`result`, result);
+    connection.end();
+
+    if (result.affectedRows >= 1) {
+      res.status(201).send({ message: 'success' });
+    } else {
+      res.status(201).send({ message: '실패하였습니다.' });
     }
   } catch (error) {
     res.status(500).json(error);
