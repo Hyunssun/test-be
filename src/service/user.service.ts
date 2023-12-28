@@ -1,6 +1,6 @@
 import mysql, { OkPacket, RowDataPacket } from 'mysql2/promise';
 import { Request, Response } from 'express';
-import { ResponseMessage, connectionConfig } from '../config';
+import { connectionConfig } from '../config';
 
 // 모든 User 정보 가져오는 API
 const userAll = async (_req: Request, res: Response): Promise<void> => {
@@ -130,22 +130,22 @@ const userModify = async (req: Request, res: Response): Promise<void> => {
 
 // 로그인 API
 const userLogin = async (req: Request, res: Response): Promise<void> => {
-  const { userid } = req.query;
+  const { userid, password } = req.body;
+  console.log('1111', userid, password);
   try {
     const connection = await mysql.createConnection(connectionConfig);
     const [result] = await connection.execute<RowDataPacket[]>(
-      'SELECT * FROM user WHERE  userid=?',
-      [userid]
+      'SELECT * FROM user WHERE userid=? and password=?',
+      [userid, password]
     );
     connection.end();
 
-    if (result.length >= 1) {
-      res.status(201).send({ message: '로그인 완료' });
+    console.log(`result`, result);
+    if (result.length >= 1 && result[0].password === password) {
+      res.status(201).send({ message: 'success' });
     } else {
-      res.status(201).send({ message: '로그인 실패' });
+      res.status(201).send({ message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
     }
-
-    res.status(200).send(result);
   } catch (error) {
     res.status(500).json(error);
   }

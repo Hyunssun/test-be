@@ -1,12 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import userController from './controller/user.controller';
 import bodyParser from 'body-parser';
-
-dotenv.config(); // 환경변수(.env) 읽어오기
 
 const app = express(); // app 대상으로 express 주입
 app.use(cors()); // CORS 에러 방지
@@ -34,15 +31,6 @@ setInterval(() => {
 app.use('/user', userController);
 
 // server
-app.listen(process.env.SERVER_PORT, () => {
+app.listen(3010, () => {
   console.log('------------ Server is running successfully ------------');
 });
-
-// DB 설정
-export const DB_config = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  port: Number(process.env.DB_PORT),
-};
